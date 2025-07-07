@@ -31,7 +31,9 @@ class Phone(Field):
 class Birthday(Field):
     def __init__(self, value):
         try:
-          self.value = datetime.strptime(value, "%d.%m.%Y")
+          data = datetime.strptime(value, "%d.%m.%Y")
+          if data:
+            self.value = value
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
 
@@ -60,7 +62,7 @@ class Record(Record):
     self.birthday = Birthday(birthday)
   @input_error
   def show_birthday(self):
-    return self.birthday.value.strftime("%d.%m.%Y") if self.birthday else "No birthday"
+    return self.birthday.value if self.birthday else "No birthday"
 
   @input_error
   def edit_phone(self, old_phone, new_phone):
@@ -83,7 +85,7 @@ class Record(Record):
     return {
       "name": self.name.value,
       "phones": [p.value for p in self.phones],
-      "birthday": self.birthday.value.strftime("%d.%m.%Y") if self.birthday else None
+      "birthday": self.birthday.value if self.birthday else None
     }
 
   @classmethod
@@ -144,7 +146,7 @@ class AddressBook(UserDict):
     for contact in self.data.values():
       if contact.birthday:
         # Конвертуємо datetime в date для порівняння
-        birthday_date = contact.birthday.value.date()
+        birthday_date = datetime.strptime(contact.birthday.value, "%d.%m.%Y").date()
         birthday_this_year = birthday_date.replace(year=today.year)
 
         # Перевіряємо, чи не буде припадати день народження вже наступного року
